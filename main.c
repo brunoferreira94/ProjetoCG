@@ -5,13 +5,17 @@ GLUquadricObj *obj;
 float angX = 0;
 float angY = 0;
 float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1,
-resolucao = 25, tam = 3;
+resolucao = 30, tam = 3;
+int angBracoPersonagem = 90, levantaBraco = 1;
 
 void init(){
      glClearColor(1.0,1.0,1.0,1.0);
      glEnable(GL_DEPTH_TEST); //habilita o teste de profundidade
      glMatrixMode(GL_MODELVIEW);
      glLoadIdentity();
+     gluLookAt(0.0, -1.0, 0.0,   //posição da câmera (P_0)
+              1.0, 1.0, 0.0,   //para onde a câmera aponta (P_ref)
+              0.0, 1.0, 0.0); //vetor view-up (V)
      glOrtho(-resolucao,resolucao,-resolucao,resolucao,-resolucao,resolucao);
      glPushMatrix();
      obj = gluNewQuadric();
@@ -65,6 +69,25 @@ void coloca_arvores(int n_arvores){
     }
 }
 
+void timerFunc(int value)
+{
+	if(levantaBraco){
+        angBracoPersonagem--;
+        if (angBracoPersonagem <= 1)
+            levantaBraco = 0;
+	}
+
+    else{
+        angBracoPersonagem++;
+        if(angBracoPersonagem >= 90)
+            levantaBraco = 1;
+    }
+
+	// Redesenha a cena com as novas coordenadas
+	glutPostRedisplay();
+	glutTimerFunc(value,timerFunc, 1);
+}
+
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa o buffer
@@ -96,7 +119,8 @@ void display()
         glPushMatrix(); // braço direito
 
             glColor3f(1.0, 0.85, 0.75);
-            glRotatef(90,1,0,0);
+            glRotatef(angBracoPersonagem,1,0,0);
+            glRotatef(angBracoPersonagem,1,0,0);
             glTranslatef(0.75,0,-2.4);
             gluDisk(obj,0,raioMembros,100,100);
             gluCylinder(obj, raioMembros, raioMembros, 1.5, 100, 100);
@@ -234,7 +258,8 @@ void transformacoes(int key, int x, int y){
            break;
      }
      glutPostRedisplay() ;
-     printf("AngX: %.2f\tAngY: %.2f", angX, angY);
+     printf("\nAngX: %.2f\tAngY: %.2f\nAngBracoPersonagem: %d\tLevantaBraco: %d",
+      angX, angY, angBracoPersonagem, levantaBraco);
 }
 
 
@@ -247,6 +272,7 @@ int main(int argc, char *argv[])
      glutCreateWindow("Primeiro esboço - Personagem Esqui nos Alpes");
      glutDisplayFunc(display);
      glutSpecialFunc(transformacoes);
+     glutTimerFunc(10, timerFunc, 1);
      init();
      glutMainLoop();
 }
