@@ -2,20 +2,18 @@
 
 GLUquadricObj *obj;
 
-float angX = 0;
-float angY = 0;
+float angX = 45;
+float angY = 45;
 float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1,
-resolucao = 30, tam = 3;
-int angBracoPersonagem = 90, levantaBraco = 1;
+resolucao = 25, tam = 10;
+float trx = 0;
+float try = 0;
 
 void init(){
      glClearColor(1.0,1.0,1.0,1.0);
      glEnable(GL_DEPTH_TEST); //habilita o teste de profundidade
      glMatrixMode(GL_MODELVIEW);
      glLoadIdentity();
-     gluLookAt(0.0, -1.0, 0.0,   //posição da câmera (P_0)
-              1.0, 1.0, 0.0,   //para onde a câmera aponta (P_ref)
-              0.0, 1.0, 0.0); //vetor view-up (V)
      glOrtho(-resolucao,resolucao,-resolucao,resolucao,-resolucao,resolucao);
      glPushMatrix();
      obj = gluNewQuadric();
@@ -25,29 +23,32 @@ void init(){
 void arvore(float tam){
     int x;
     glPushMatrix();
-    //A função 'glutSolidCone' desenha o cone deitado. Como este é pretendido a pé usamos o rotate
-    glRotatef(-90, 1, 0, 0);
+		
+    	//A função 'glutSolidCone' desenha o cone deitado. Como este é pretendido a pé usamos o rotate
+    	glRotatef(-45, 1, 0, 0);
+		glRotatef(0,1,0,0);
+     
 
-    glColor3f(0.7, 0.3, 0);
-    glutSolidCone(0.1*tam, tam, 20, 10);
+    	glColor3f(0.7, 0.3, 0);
+    	glutSolidCone(0.1*tam, tam, 20, 10);
 
-    glTranslatef(0, 0, 0.25*tam);
+    	glTranslatef(0, 0, 0.25*tam);
 
-    x=rand()%2;
-    switch (x) {
-        case 0:
-            glColor3f(0, 0.5, 0);
-            break;
+    	x=rand()%2;
+    	switch (x) {
+    	    case 0:
+       	   		glColor3f(0, 0.5, 0);
+        	    break;
 
-        case 1:
-            glColor3f(0.0, 0.6, 0.2);
-            break;
+       		case 1:
+         	    glColor3f(0.0, 0.6, 0.2);
+            	break;
 
-        default:
-            break;
-    }
+	        default:
+	            break;
+    	}
 
-    glutSolidCone(0.25*tam, 0.75*tam, 20, 10);
+    	glutSolidCone(0.25*tam, 0.75*tam, 20, 10);
 
     glPopMatrix();
 
@@ -57,8 +58,8 @@ void coloca_arvores(int n_arvores){
     int x,y;
     srand(4); //Inicia a sequência aleatória para ser sempre a mesma a sequência a ser gerada
     while (n_arvores>0) {
-        x=rand()%10;
-        y=rand()%10;
+        x= 20 - rand()%40;
+        y= 20 - rand()%40;
 
         //Fazemos um Push para preservar o ponto de origem
         glPushMatrix();
@@ -69,40 +70,29 @@ void coloca_arvores(int n_arvores){
     }
 }
 
-void timerFunc(int value)
-{
-	if(levantaBraco){
-        angBracoPersonagem--;
-        if (angBracoPersonagem <= 1)
-            levantaBraco = 0;
-	}
-
-    else{
-        angBracoPersonagem++;
-        if(angBracoPersonagem >= 90)
-            levantaBraco = 1;
-    }
-
-	// Redesenha a cena com as novas coordenadas
-	glutPostRedisplay();
-	glutTimerFunc(value,timerFunc, 1);
-}
-
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa o buffer
 
-    coloca_arvores(2);
+    coloca_arvores(10);
 
     glColor3f(1.0, 0.85, 0.75);
 
     glPopMatrix();
     glPushMatrix();
+		glTranslatef(trx,try,0);
         glRotatef(angX,1,0,0);
         glRotatef(angY,0,1,0);
         glPushMatrix(); // rosto
             glTranslatef(0,4.1,0);
             glutSolidSphere(1.2,100,100);
+			glPushMatrix();
+				glColor3f(0,0,1);
+				glTranslatef(0.4,0.4,0.8);
+				glutSolidSphere(0.3,50,50);
+				glTranslatef(-0.8,0,0);
+				glutSolidSphere(0.3,50,50);
+			glPopMatrix();
         glPopMatrix();
         glPushMatrix(); // corpo
             glColor3f(1.0, 0, 0);
@@ -119,8 +109,7 @@ void display()
         glPushMatrix(); // braço direito
 
             glColor3f(1.0, 0.85, 0.75);
-            glRotatef(angBracoPersonagem,1,0,0);
-            glRotatef(angBracoPersonagem,1,0,0);
+            glRotatef(90,1,0,0);
             glTranslatef(0.75,0,-2.4);
             gluDisk(obj,0,raioMembros,100,100);
             gluCylinder(obj, raioMembros, raioMembros, 1.5, 100, 100);
@@ -258,10 +247,26 @@ void transformacoes(int key, int x, int y){
            break;
      }
      glutPostRedisplay() ;
-     printf("\nAngX: %.2f\tAngY: %.2f\nAngBracoPersonagem: %d\tLevantaBraco: %d",
-      angX, angY, angBracoPersonagem, levantaBraco);
+     //printf("AngX: %.2f\tAngY: %.2f", angX, angY);
 }
 
+void movimentos(unsigned char key, int x, int y){
+	switch (key){
+		case 'a' :
+		case 'A' :
+			trx-=1;
+			try-=1;
+			break;
+		case 'D' :
+		case 'd' :
+			trx+=1;
+			try+=1;
+			break ;
+ 		default:
+           	break ;
+	}
+	glutPostRedisplay() ;
+}
 
 int main(int argc, char *argv[])
 {
@@ -272,7 +277,7 @@ int main(int argc, char *argv[])
      glutCreateWindow("Primeiro esboço - Personagem Esqui nos Alpes");
      glutDisplayFunc(display);
      glutSpecialFunc(transformacoes);
-     glutTimerFunc(10, timerFunc, 1);
+	 glutKeyboardFunc(movimentos);
      init();
      glutMainLoop();
 }
