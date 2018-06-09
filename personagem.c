@@ -13,7 +13,11 @@ float try = 0;
 float ombro = 0;
 float antebraco = -90;
 float perna = 90;
+float joelho = 0;
+float esqui = 90;
+float corpo = 0;
 int flag = 0;
+int flag2 = 0;
 
 void init(){
      glClearColor(0.0,0.0,0.0,0.0);
@@ -34,6 +38,11 @@ void display()
     glPopMatrix();
     glPushMatrix();
     	glTranslatef(trx,try,0);
+
+        glRotatef(corpo,0,0,1);
+        //glRotatef(corpo/2,0,1,0);
+        //glRotatef(corpo/2,1,0,0);
+
         glRotatef(angX,1,0,0);
         glRotatef(angY,0,1,0);
         glPushMatrix(); // rosto
@@ -138,23 +147,27 @@ void display()
                     glTranslatef(0,0,1.5);
                     glutSolidSphere(0.22,100,100); ///joelho
 
-                    gluDisk(obj,0,raioMembros,100,100);
-                    gluCylinder(obj, raioMembros, raioMembros, 1.4, 100, 100);
-
                     glPushMatrix();
-                        glTranslatef(0,0,1.4);
-                        glColor3f(0,0,1);
-                        glutSolidSphere(0.3,100,100); // pe
+                        glRotatef(joelho,1,0,0);
+                        gluDisk(obj,0,raioMembros,100,100);
+                        gluCylinder(obj, raioMembros, raioMembros, 1.4, 100, 100);
 
-                        glColor3f(0.5,0.5,0.5);
+                        glPushMatrix();
+                            glTranslatef(0,0,1.4);
+                            glColor3f(0,0,1);
+                            glutSolidSphere(0.3,100,100); // pe
 
-                        glRotatef(90,1,0,0);
-                        glTranslatef(0,0.25,0);
-                        glScalef(1,0.2,10);
-                        glutSolidSphere(0.35,100,100); // esqui
+                            glColor3f(0.5,0.5,0.5);
+                            glPushMatrix();
+                                glRotatef(esqui,1,0,0);
+                                glTranslatef(0,0.25,0);
+                                glScalef(1,0.2,10);
+                                glutSolidSphere(0.35,100,100); // esqui
+                            glPopMatrix();
+                         glPopMatrix();
                     glPopMatrix();
                 glPopMatrix();
-        glPopMatrix();
+            glPopMatrix();
         glPopMatrix();
 
         glPushMatrix();
@@ -163,27 +176,33 @@ void display()
             glutSolidSphere(0.22,100,100); /// ///bumbum tam tam
             glPushMatrix(); //perna esquerda
                 glColor3f(1.0, 0.85, 0.75);
-                glRotatef(90,1,0,0);
+                glRotatef(perna,1,0,0);
                 gluDisk(obj,0,raioMembros,100,100);
                 gluCylinder(obj, raioMembros, raioMembros, 1.5, 100, 100);
 
-                glTranslatef(0,0,1.5);
-                glutSolidSphere(0.22,100,100); ///joelho
-
-                gluDisk(obj,0,raioMembros,100,100);
-                gluCylinder(obj, raioMembros, raioMembros, 1.4, 100, 100);
-
                 glPushMatrix();
-                    glTranslatef(0,0,1.4);
-                    glColor3f(0,0,1);
-                    glutSolidSphere(0.3,100,100); /// pe
+                    glTranslatef(0,0,1.5);
+                    glutSolidSphere(0.22,100,100); ///joelho
+                
+                    glPushMatrix();
+                        glRotatef(joelho,1,0,0); 
+                        gluDisk(obj,0,raioMembros,100,100); ///panturrilha
+                        gluCylinder(obj, raioMembros, raioMembros, 1.4, 100, 100);
 
-                    glColor3f(0.5,0.5,0.5);
+                        glPushMatrix();
+                            glTranslatef(0,0,1.4);
+                            glColor3f(0,0,1);
+                            glutSolidSphere(0.3,100,100); /// pe
 
-                    glRotatef(90,1,0,0);
-                    glTranslatef(0,0.25,0);
-                    glScalef(1,0.2,10);
-                    glutSolidSphere(0.35,100,100); /// esqui
+                            glColor3f(0.5,0.5,0.5);
+                            glPushMatrix();
+                                glRotatef(esqui,1,0,0);
+                                glTranslatef(0,0.25,0);
+                                glScalef(1,0.2,10);
+                                glutSolidSphere(0.35,100,100); /// esqui
+                            glPopMatrix();
+                        glPopMatrix();
+                    glPopMatrix();
                 glPopMatrix();
             glPopMatrix();
         glPopMatrix();
@@ -217,16 +236,52 @@ void transformacoes(int key, int x, int y){
 void agaixar(int value)
 {
 	int i, aux = 0;
-	if(aux == 0)
-    	perna-=2;
-	if(perna == 60)
+
+	if(aux == 0){
+        corpo-=2;
+    	perna-=4;
+        joelho+=4;
+        esqui-=2;
+    }
+	if(perna == 30){
 		aux = 1;
+    }
 
 	// Redesenha a cena com as novas coordenadas
 	glutPostRedisplay();
 
 	if(aux == 0)
 		glutTimerFunc(10,agaixar, 1);
+}
+
+
+void timerFunc(int value)
+{
+    if(flag == 0){
+        ombro+=3;
+        antebraco+=2.5;
+    }
+    else if (flag == 1){
+        ombro-=3;
+        antebraco-=2.5;
+    }
+
+    if (ombro == 45){
+        flag = 1;
+        flag2++;
+    }
+
+    else if(ombro == -45){
+        flag = 0;
+    }
+
+	// Redesenha a cena com as novas coordenadas
+	glutPostRedisplay();
+    
+    if(flag2 == 3)
+        glutTimerFunc(10,agaixar,1);
+    else
+	    glutTimerFunc(10,timerFunc, 1);
 }
 
 void movimentos(unsigned char key, int x, int y){
@@ -241,36 +296,14 @@ void movimentos(unsigned char key, int x, int y){
 			trx+=1;
 			try+=1;
 			break ;
-        case 's' :
-        case 'S' :
-            glutTimerFunc(10,agaixar,1);
+        case 'w' :
+        case 'W' :
+            glutTimerFunc(10,timerFunc,1);
+            break;
  		default:
            	break ;
 	}
 	glutPostRedisplay() ;
-}
-
-void timerFunc(int value)
-{
-
-    if(flag == 0){
-        ombro+=3;
-        antebraco+=2.5;
-    }
-    else if (flag == 1){
-        ombro-=3;
-        antebraco-=2.5;
-    }
-
-    if (ombro == 45)
-        flag = 1;
-    else if(ombro == -45)
-
-        flag = 0;
-
-	// Redesenha a cena com as novas coordenadas
-	glutPostRedisplay();
-	glutTimerFunc(10,timerFunc, 1);
 }
 
 int main(int argc, char *argv[])
@@ -283,7 +316,6 @@ int main(int argc, char *argv[])
      glutDisplayFunc(display);
      glutSpecialFunc(transformacoes);
 	 glutKeyboardFunc(movimentos);
-     glutTimerFunc(10,timerFunc,1);
      init();
      glutMainLoop();
 }
