@@ -3,11 +3,12 @@
 GLUquadricObj *obj;
 
 float angX = 45;
-float angY = 45;
-float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1,
-resolucao = 25, tam = 10;
+float angY = 0;
+float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1, resolucao = 25, tam = 10;
 float trx = 0;
 float try = 0;
+int arvores = 10; //Quantidade de`árvores na cena
+int v[10][2]; //Vetor de posições das árvores ***Linha = quantidade de árvores, Coluna = X e Y
 
 void init(){
      glClearColor(1.0,1.0,1.0,1.0);
@@ -19,15 +20,22 @@ void init(){
      obj = gluNewQuadric();
      gluQuadricDrawStyle(obj,GLU_SMOOTH);
 }
+//Detecta colisão
+int colisao(float personagemX, float personagemY, float obstaculoX, float obstaculoY, float obstaculoRaio, float ajustaRaio){
+    obstaculoRaio *= ajustaRaio; //Ajusta o raio de colisão
+    if(personagemX >= obstaculoX-obstaculoRaio/2 && personagemX <= obstaculoX+obstaculoRaio/2 &&
+        personagemY >= obstaculoY-obstaculoRaio && personagemY <= obstaculoY+obstaculoRaio){
+        printf("X\tY\n%.2f\t%.2f\n%.2f\t%.2f\n", personagemX, personagemY, obstaculoX, obstaculoY);
+    }
+}
 
 void arvore(float tam){
     int x;
     glPushMatrix();
-		
+
     	//A função 'glutSolidCone' desenha o cone deitado. Como este é pretendido a pé usamos o rotate
     	glRotatef(-45, 1, 0, 0);
 		glRotatef(0,1,0,0);
-     
 
     	glColor3f(0.7, 0.3, 0);
     	glutSolidCone(0.1*tam, tam, 20, 10);
@@ -61,6 +69,9 @@ void coloca_arvores(int n_arvores){
         x= 20 - rand()%40;
         y= 20 - rand()%40;
 
+        v[n_arvores-1][0] = x;
+        v[n_arvores-1][1] = y;
+
         //Fazemos um Push para preservar o ponto de origem
         glPushMatrix();
             glTranslatef(x, y, 0); //Translate para a posição pretendida
@@ -74,7 +85,14 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa o buffer
 
-    coloca_arvores(10);
+    //Posiciona as árvores na cena
+    coloca_arvores(arvores);
+
+    //Laço para verificar se está perto de alguma árvore
+    for(int i = 0; i < arvores; i++){
+        printf("%d\n", i);
+        colisao(trx,try,v[i][0],v[i][1],tam, 0.3);
+    }
 
     glColor3f(1.0, 0.85, 0.75);
 
@@ -252,15 +270,27 @@ void transformacoes(int key, int x, int y){
 
 void movimentos(unsigned char key, int x, int y){
 	switch (key){
+        case 'w' :
+		case 'W' :
+            try++;
+			break;
 		case 'a' :
 		case 'A' :
-			trx-=1;
-			try-=1;
+            //Vira para esquerda
+            angY = 315;
+            trx--;
 			break;
 		case 'D' :
 		case 'd' :
-			trx+=1;
-			try+=1;
+            //Vira para direita
+            angY = 45;
+            trx++;
+			break ;
+		case 'S' :
+		case 's' :
+            //Vira para frente
+            angY = 0;
+            try--;
 			break ;
  		default:
            	break ;
@@ -274,7 +304,7 @@ int main(int argc, char *argv[])
      glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
      glutInitWindowPosition(50,50);
      glutInitWindowSize(600,600);
-     glutCreateWindow("Primeiro esboço - Personagem Esqui nos Alpes");
+     glutCreateWindow("Esqui nos Alpes");
      glutDisplayFunc(display);
      glutSpecialFunc(transformacoes);
 	 glutKeyboardFunc(movimentos);
