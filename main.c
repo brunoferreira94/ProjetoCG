@@ -4,11 +4,15 @@ GLUquadricObj *obj;
 
 float angX = 45;
 float angY = 0;
-float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1, resolucao = 25, tam = 10;
+float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1;
 float trx = 0;
 float try = 0;
 int arvores = 10; //Quantidade de`árvores na cena
-int v[10][2]; //Vetor de posições das árvores ***Linha = quantidade de árvores, Coluna = X e Y
+int v[30][2]; //Vetor de posições das árvores ***Linha = quantidade de árvores, Coluna = X e Y
+
+int i = 0, cont, distancia = 70, tam = 30;
+float ystep = 2, resolucao = 40, x1 = 40, y1 = 40, a;
+float pos[15];
 
 //Variáveis de animação
 float ombro = 0;
@@ -32,48 +36,58 @@ void init(){
 }
 //Detecta colisão
 int colisao(float personagemX, float personagemY, float obstaculoX, float obstaculoY, float obstaculoRaio, float ajustaRaio){
+
     obstaculoRaio *= ajustaRaio; //Ajusta o raio de colisão
+
     if(personagemX >= obstaculoX-obstaculoRaio/2 && personagemX <= obstaculoX+obstaculoRaio/2 &&
         personagemY >= obstaculoY-obstaculoRaio && personagemY <= obstaculoY+obstaculoRaio){
-        printf("X\tY\n%.2f\t%.2f\n%.2f\t%.2f\n", personagemX, personagemY, obstaculoX, obstaculoY);
+        printf("X\tY\n%.2f\t%.2f\n%.2f\t%.2f\n\n", personagemX, personagemY, obstaculoX, obstaculoY);
     }
 }
 
-void arvore(float tam){
-    int x;
+void arvore(){
     glPushMatrix();
 
-    	//A função 'glutSolidCone' desenha o cone deitado. Como este é pretendido a pé usamos o rotate
+    	///A função 'glutSolidCone' desenha o cone deitado. Como este é pretendido a pé usamos o rotate
     	glRotatef(-45, 1, 0, 0);
-		glRotatef(0,1,0,0);
+    	glColor3f(0.7, 0.3, 0); /// cor do tronco: marrom
+    	glutSolidCone(1, 10, 100, 100); /// desenha o cone
 
-    	glColor3f(0.7, 0.3, 0);
-    	glutSolidCone(0.1*tam, tam, 20, 10);
-
-    	glTranslatef(0, 0, 0.25*tam);
-
-    	x=rand()%2;
-    	switch (x) {
-    	    case 0:
-       	   		glColor3f(0, 0.5, 0);
-        	    break;
-
-       		case 1:
-         	    glColor3f(0.0, 0.6, 0.2);
-            	break;
-
-	        default:
-	            break;
-    	}
-
-    	glutSolidCone(0.25*tam, 0.75*tam, 20, 10);
+    	glTranslatef(0, 0, 2.5);
+        glColor3f(0.0, 0.6, 0.2);
+    	glutSolidCone(2.5, 7.5, 100, 100);
 
     glPopMatrix();
 
 }
 
 void coloca_arvores(int n_arvores){
-    int x,y;
+    srand(5);
+
+    while(i < (n_arvores/2)){
+        a = (rand() % 60 ) - 35;
+        pos[i] = a;
+        printf("pos[%d]: %.1f\n", i, pos[i]);
+        i++;
+    }
+
+    for(cont = 0; cont < (n_arvores/2); cont++){
+            glPushMatrix();
+                glTranslatef(pos[cont], y1 - (cont)*distancia, 0);
+                arvore();
+                v[cont][0] = pos[cont];
+                v[cont][1] = y1 - (cont)*distancia;
+            glPopMatrix();
+            glPushMatrix();
+                glTranslatef(pos[cont] + 15, y1 - (cont)*distancia, 0);
+                arvore();
+                v[cont+15][0] = pos[cont] + 15;
+                v[cont+15][1] = y1 - (cont)*distancia;
+            glPopMatrix();
+
+    }
+
+    /*int x,y;
     srand(4); //Inicia a sequência aleatória para ser sempre a mesma a sequência a ser gerada
     while (n_arvores>0) {
         x= 20 - rand()%40;
@@ -88,25 +102,26 @@ void coloca_arvores(int n_arvores){
             arvore(tam);
         glPopMatrix();
         n_arvores--;
-    }
+    }*/
 }
 
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa o buffer
 
-    //Posiciona as árvores na cena
-    coloca_arvores(arvores);
+    /// Posiciona as árvores na cena
+    coloca_arvores(tam);
 
-    //Laço para verificar se está perto de alguma árvore
-    for(int i = 0; i < arvores; i++){
-        printf("%d\n", i);
-        colisao(trx,try,v[i][0],v[i][1],tam, 0.3);
+    /// Laço para verificar se está perto de alguma árvore
+    for(int i = 0; i < tam; i++){
+        //printf("%d\n", i);
+        colisao(trx,try,v[i][0],v[i][1], 10, 0.3);
     }
 
     glColor3f(1.0, 0.85, 0.75);
 
     glPopMatrix();
+
     glPushMatrix();
     	glTranslatef(trx,try,0);
 
@@ -277,14 +292,19 @@ void display()
                 glPopMatrix();
             glPopMatrix();
         glPopMatrix();
-
     glPopMatrix();
 
     glutSwapBuffers();
 }
 
-void agaixar(int value)
-{
+void scenarioTimerFunc(int value){
+    y1 += ystep;
+
+    glutPostRedisplay();
+    glutTimerFunc(10, scenarioTimerFunc, 1);
+}
+
+void agaixar(int value){
 	int i, aux = 0;
 
 	if(aux == 0){
@@ -297,14 +317,14 @@ void agaixar(int value)
 		aux = 1;
     }
 
-	// Redesenha a cena com as novas coordenadas
+	/// Redesenha a cena com as novas coordenadas
 	glutPostRedisplay();
 
 	if(aux == 0)
-		glutTimerFunc(10,agaixar, 1);
+		glutTimerFunc(10, agaixar, 1);
 }
 
-void timerFunc(int value)
+void charTimerFunc(int value)
 {
     if(flag == 0){
         ombro+=3;
@@ -330,7 +350,7 @@ void timerFunc(int value)
     if(flag2 == 3)
         glutTimerFunc(10,agaixar,1);
     else
-	    glutTimerFunc(10,timerFunc, 1);
+	    glutTimerFunc(10,charTimerFunc, 1);
 }
 
 void transformacoes(int key, int x, int y){
@@ -380,10 +400,11 @@ void movimentos(unsigned char key, int x, int y){
 			break ;
         case 'x' :
         case 'X' :
-            glutTimerFunc(10,timerFunc,1);
+            glutTimerFunc(10, charTimerFunc, 1);
  		default:
            	break ;
 	}
+
 	glutPostRedisplay() ;
 }
 
@@ -391,12 +412,14 @@ int main(int argc, char *argv[])
 {
      glutInit(&argc,argv);
      glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-     glutInitWindowPosition(50,50);
-     glutInitWindowSize(600,600);
+     glutInitWindowPosition(50, 100);
+     glutInitWindowSize(600, 600);
      glutCreateWindow("Esqui nos Alpes");
      glutDisplayFunc(display);
      glutSpecialFunc(transformacoes);
 	 glutKeyboardFunc(movimentos);
+	 glutTimerFunc(10, scenarioTimerFunc, 1);
+	 glutTimerFunc(10, charTimerFunc, 1);
      init();
      glutMainLoop();
 }
