@@ -7,7 +7,7 @@ float angY = 0;
 float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1;
 float trx = 0;
 float try = 0;
-int arvores = 10; //Quantidade de`árvores na cena
+int arvores = 30; //Quantidade de`árvores na cena
 int v[30][2]; //Vetor de posições das árvores ***Linha = quantidade de árvores, Coluna = X e Y
 
 int i = 0, cont, distancia = 70, tam = 30;
@@ -23,6 +23,7 @@ float esqui = 90;
 float corpo = 0;
 int flag = 0;
 int flag2 = 0;
+float vel = 0, velEsq = -2.5, velDir = 2.5;
 
 void init(){
      glClearColor(1.0,1.0,1.0,1.0);
@@ -38,9 +39,10 @@ void init(){
 int colisao(float personagemX, float personagemY, float obstaculoX, float obstaculoY, float obstaculoRaio, float ajustaRaio){
 
     obstaculoRaio *= ajustaRaio; //Ajusta o raio de colisão
+    int metadeRaio = obstaculoRaio/2;
 
-    if(personagemX >= obstaculoX-obstaculoRaio/2 && personagemX <= obstaculoX+obstaculoRaio/2 &&
-        personagemY >= obstaculoY-obstaculoRaio && personagemY <= obstaculoY+obstaculoRaio){
+    if(personagemY >= obstaculoY-obstaculoRaio && personagemY <= obstaculoY+obstaculoRaio &&
+        personagemX >= obstaculoX-metadeRaio && personagemX <= obstaculoX+metadeRaio){
         printf("X\tY\n%.2f\t%.2f\n%.2f\t%.2f\n\n", personagemX, personagemY, obstaculoX, obstaculoY);
     }
 }
@@ -125,7 +127,7 @@ void display()
     glPushMatrix();
     	glTranslatef(trx,try,0);
 
-        glRotatef(corpo,0,0,1);
+        glRotatef(corpo,1,0,0);
         //glRotatef(corpo/2,0,1,0);
         //glRotatef(corpo/2,1,0,0);
 
@@ -259,7 +261,7 @@ void display()
         glPushMatrix();
             glColor3f(1,1,1);
             glTranslatef(-0.4,-1.9,0);
-            glutSolidSphere(0.22,100,100); /// ///bumbum tam tam
+            glutSolidSphere(0.22,100,100); //bumbum tam tam
             glPushMatrix(); //perna esquerda
                 glColor3f(1.0, 0.85, 0.75);
                 glRotatef(perna,1,0,0);
@@ -308,9 +310,9 @@ void agaixar(int value){
 	int i, aux = 0;
 
 	if(aux == 0){
-        corpo-=2;
+        corpo+=0.25;
     	perna-=4;
-        joelho+=4;
+        joelho+=5;
         esqui-=2;
     }
 	if(perna == 30){
@@ -327,23 +329,22 @@ void agaixar(int value){
 void charTimerFunc(int value)
 {
     if(flag == 0){
-        ombro+=3;
-        antebraco+=2.5;
+        ombro+=12;
+        antebraco+=10;
     }
     else if (flag == 1){
-        ombro-=3;
-        antebraco-=2.5;
+        ombro-=12;
+        antebraco-=10;
     }
 
-    if (ombro == 45){
+    if (ombro == 48){
         flag = 1;
         flag2++;
     }
 
-    else if(ombro == -45){
+    else if(ombro == -48){
         flag = 0;
     }
-
 	// Redesenha a cena com as novas coordenadas
 	glutPostRedisplay();
 
@@ -378,31 +379,35 @@ void movimentos(unsigned char key, int x, int y){
 	switch (key){
         case 'w' :
 		case 'W' :
-            try++;
+            try+=1.5;
 			break;
 		case 'a' :
 		case 'A' :
             //Vira para esquerda
-            angY = 315;
-            trx--;
+            angY = -22.5;
+            if(vel > 0){
+                vel = velEsq;
+            }
 			break;
 		case 'D' :
 		case 'd' :
             //Vira para direita
-            angY = 45;
-            trx++;
+            angY = 22.5;
+            if(vel < 0){
+                vel = velDir;
+            }
 			break ;
 		case 'S' :
 		case 's' :
             //Vira para frente
             angY = 0;
-            try--;
+            vel = 0;
 			break ;
         case 'x' :
         case 'X' :
             glutTimerFunc(10, charTimerFunc, 1);
  		default:
-           	break ;
+           	break;
 	}
 
 	glutPostRedisplay() ;
