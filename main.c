@@ -1,5 +1,7 @@
 #include <GL/glut.h>
 
+#define ARVORE 5
+
 GLUquadricObj *obj;
 
 float arvEsquerda, arvDireita;
@@ -7,13 +9,13 @@ float angX = 45;
 float angY = 0;
 float raioCorpo = 0.7, raioMembros=0.2, raioBastao=0.1;
 float trx = 0;
-float try = 0;
+float try = 20;
 int arvores = 10; //Quantidade de`árvores na cena
-int v[30][4]; //Vetor de posições das árvores ***Linha = quantidade de árvores, Coluna = X e Y
+int v[ARVORE][4]; //Vetor de posições das árvores ***Linha = quantidade de árvores, Coluna = X e Y
 
-int i = 0, cont, distancia = 70, tam = 30, pontuacao = 0;
+int i = 0, cont, distancia = 70, tam = ARVORE, pontuacao = 0;
 float ystep = 3, resolucao = 40, x1 = 40, y1 = 40, a;
-float pos[30];
+float pos[ARVORE];
 
 //Pontuação
 GLvoid *font_style1 = GLUT_BITMAP_TIMES_ROMAN_24;
@@ -131,6 +133,22 @@ void coloca_arvores(int n_arvores)
         v[cont][2] = pos[cont] + 15;
         v[cont][3] = y1 - (cont)*distancia;
         glPopMatrix();
+
+        if(cont == (n_arvores-1)){
+            glPushMatrix();
+            glTranslatef(0,y1 - (cont+1) * distancia,-1);
+            glLineWidth(3);
+            glColor3f(1,0,0);
+            glBegin(GL_LINES);
+            glVertex2f(-40,0);
+            glVertex2f(40,0);
+            glEnd();
+            glPopMatrix();
+        }
+
+        if(try < y1 - (ARVORE+0.2)* distancia){
+            ystep-=0.5;
+        }
     }
 
     glutPostRedisplay();
@@ -411,7 +429,10 @@ void scenarioTimerFunc(int value)
     y1 += ystep;
 
     glutPostRedisplay();
-    glutTimerFunc(1, scenarioTimerFunc, 1);
+    if(ystep > 0)
+        glutTimerFunc(1, scenarioTimerFunc, 1);
+    else
+        angY = 45;
 }
 
 void charAndarTimerFunc(){
@@ -419,6 +440,13 @@ void charAndarTimerFunc(){
     if(trx <= -resolucao+3 || trx >= resolucao-3)
         vel = 0;
     glutTimerFunc(1, charAndarTimerFunc, 1);
+
+    if(try > 20)
+        try-=0.5;
+    if(trx > 38)
+        trx-=0.5;
+    else if (trx < -38)
+        trx+=0.5;
 }
 
 void agaixar(int value)
@@ -476,7 +504,7 @@ void charTimerFunc(int value)
     else
         glutTimerFunc(10,charTimerFunc, 1);
 }
-
+/*
 void transformacoes(int key, int x, int y)
 {
     switch (key)
@@ -499,7 +527,7 @@ void transformacoes(int key, int x, int y)
     glutPostRedisplay() ;
     //printf("AngX: %.2f\tAngY: %.2f", angX, angY);
 }
-
+*/
 void vira(int direcao){ ///1 frente, 2 esquerda, 3 direita
     switch(direcao){
     case 1:
@@ -527,10 +555,6 @@ void movimentos(unsigned char key, int x, int y)
 {
     switch (key)
     {
-    case 'w' :
-    case 'W' :
-        try++;
-        break;
     case 'a' :
     case 'A' :
         //Vira para esquerda
@@ -559,7 +583,7 @@ int main(int argc, char *argv[])
     glutInitWindowSize(600, 600);
     glutCreateWindow("Esqui nos Alpes");
     glutDisplayFunc(display);
-    glutSpecialFunc(transformacoes);
+    //glutSpecialFunc(transformacoes);
     glutKeyboardFunc(movimentos);
     glutTimerFunc(1, scenarioTimerFunc, 1);
     glutTimerFunc(10, charTimerFunc, 1);
