@@ -1,7 +1,0 @@
-# depslib dependency file v1.0
-1527882902 source:/home/bruno/ProjetoCG/main.c
-	<GL/glut.h>
-
-1528079762 source:/home/bruno/Repositorios/ProjetoCG/main.c
-	<GL/glut.h>
-

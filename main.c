@@ -100,7 +100,6 @@ void arvore()
     glutSolidCone(2.5, 7.5, 100, 100);
 
     glPopMatrix();
-
 }
 
 void coloca_arvores(int n_arvores)
