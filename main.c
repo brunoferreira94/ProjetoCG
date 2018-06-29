@@ -15,6 +15,9 @@ int i = 0, cont, distancia = 70, tam = 30, pontuacao = 0;
 float ystep = 3, resolucao = 40, x1 = 40, y1 = 40, a;
 float pos[30];
 
+//Pontuação
+GLvoid *font_style1 = GLUT_BITMAP_TIMES_ROMAN_24;
+
 //Variáveis de animação
 float ombro = 0;
 float antebraco = -90;
@@ -175,9 +178,44 @@ void coloca_arvores(int n_arvores)
     //glEnable(GL_LIGHT1);
 }*/
 
+void scoredisplay (int sx, int sy, int sz, int space_char, int pont)
+{
+        glColor3f(1,0,0);
+        int j=0,p,k;
+
+        p = pont;
+        j = 0;
+        k = 0;
+        while(p > 9)
+        {
+            k = p % 10;
+            glRasterPos3f ((sx-(j*space_char)),sy, sz);
+            glutBitmapCharacter(font_style1,48+k);
+            j++;
+            p /= 10;
+        }
+            glRasterPos3f ((sx-(j*space_char)), sy, sz);
+            glutBitmapCharacter(font_style1,48+p);
+
+}
+
+void output(int x, int y, char *string)
+{
+    glColor3f(1,0,0);
+    glRasterPos2f(x, y);
+    int len, i;
+    len = (int)strlen(string);
+    for (i = 0; i < len; i++) {
+        glutBitmapCharacter(font_style1, string[i]);
+    }
+}
+
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa o buffer
+
+    output(resolucao-20, resolucao-5, "Score: ");
+    scoredisplay(resolucao-5, resolucao-5, resolucao, 2, pontuacao);
 
     /// Posiciona as árvores na cena
     coloca_arvores(tam);
