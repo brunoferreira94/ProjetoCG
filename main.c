@@ -1,6 +1,6 @@
 #include <GL/glut.h>
 
-#define ARVORE 5
+#define ARVORE 15
 
 GLUquadricObj *obj;
 
@@ -61,11 +61,11 @@ int colisao(float personagemX, float personagemY, float obstaculoX, float obstac
             personagemX >= obstaculoX_2-meioObstaculoRaio && personagemX <= obstaculoX_2+meioObstaculoRaio)
     {
 
-        printf("X\tY\n%.2f\t%.2f\n%.2f\t%.2f\n\n", personagemX, personagemY, obstaculoX, obstaculoY);
+        //printf("X\tY\n%.2f\t%.2f\n%.2f\t%.2f\n\n", personagemX, personagemY, obstaculoX, obstaculoY);
 
         if(personagemX >= obstaculoX-meioObstaculoRaio && personagemX <= obstaculoX+meioObstaculoRaio)
         {
-            printf("\nÁrvore Esquerda\n");
+            //printf("\nÁrvore Esquerda\n");
             trx -= 5; /// Caso haja colisão com a árvore esquerda, desloca o personagem 5 u.c. pra esquerda, se não ele passa dentro da árvore
             try += 3;
             vira(1);
@@ -74,7 +74,7 @@ int colisao(float personagemX, float personagemY, float obstaculoX, float obstac
         {
             if(personagemX >= obstaculoX_2-meioObstaculoRaio && personagemX <= obstaculoX_2+meioObstaculoRaio)
             {
-                printf("Árvore Direita\n");
+                //printf("Árvore Direita\n");
                 trx += 5; /// Caso haja colisão com a árvore direita, desloca o personagem 5 u.c. pra direita, se não ele passa dentro da árvore
                 try += 3;
                 vira(1);
@@ -86,7 +86,7 @@ int colisao(float personagemX, float personagemY, float obstaculoX, float obstac
         if((personagemX > obstaculoX && personagemX < obstaculoX_2) && (personagemY <= obstaculoY && personagemY >= obstaculoY-2))
         {
             pontuacao++;
-            printf("\nPontuação: %d\n", pontuacao);
+            //printf("\nPontuação: %d\n", pontuacao);
         }
     }
 }
@@ -115,7 +115,7 @@ void coloca_arvores(int n_arvores)
     {
         a = (rand() % 60 ) - 35;
         pos[i] = a;
-        printf("pos[%d]: %.1f\n", i, pos[i]);
+        //printf("pos[%d]: %.1f\n", i, pos[i]);
         i++;
     }
 
